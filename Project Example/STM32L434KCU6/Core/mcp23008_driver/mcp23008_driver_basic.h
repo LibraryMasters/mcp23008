@@ -129,7 +129,7 @@ uint8_t mcp23008_basic_gpio_toggle(mcp23008_gpio_port_t GPIOx);
  *          - 1 failed
  * @note    none
  */
-  uint8_t mcp23008_basic_INT_enable(mcp23008_gpio_port_t GPIOx, mcp23008_int_default_value_t edge_select);
+uint8_t mcp23008_basic_interrupt_enable(mcp23008_gpio_port_t GPIOx, mcp23008_interrupt_default_value_t edge_select);
 
 
  /**
@@ -140,16 +140,16 @@ uint8_t mcp23008_basic_gpio_toggle(mcp23008_gpio_port_t GPIOx);
  *          - 1 failed
  * @note    none
  */
-  uint8_t mcp23008_basic_INT_disable(mcp23008_gpio_port_t GPIOx);
+uint8_t mcp23008_basic_interrupt_disable(mcp23008_gpio_port_t GPIOx);
 
    /**
  * @brief basic example to clear interrupt flag
  * @return status code
  *          - 0 success
  *          - 1 failed
- * @note    none
+ * @note    This function should not be called in the interrupt callback routine
  */
-  uint8_t mcp23008_basic_clr_INT_flag(void);
+uint8_t mcp23008_basic_clr_interrupt_flag(void);
 
 /**
  * @brief basic example to get interrupt flag status
@@ -158,7 +158,7 @@ uint8_t mcp23008_basic_gpio_toggle(mcp23008_gpio_port_t GPIOx);
  * @return interrupt status flag
  * @note    none
  */
-uint8_t mcp23008_basic_get_INT_flag(mcp23008_gpio_port_t GPIOx, uint8_t *flag_status);
+uint8_t mcp23008_basic_get_interrupt_flag(mcp23008_gpio_port_t GPIOx, uint8_t *flag_status);
 
 /**
  * @brief     get the address pin

@@ -1,13 +1,34 @@
 #include <atmel_start.h>
 #include "mcp23008_driver/mcp23008_driver_basic.h"
 
+/**< interface function definition */
 void print(char *const pBuffer, size_t u8Length);
 uint8_t i2c_read(uint8_t addr, uint8_t *buf, uint16_t len);
 uint8_t i2c_write(uint8_t addr, uint8_t *buf, uint16_t len);
 void gpio_toggle_pin_blue(void);
 void gpio_toggle_pin_green(void);
 
-int variant;
+typedef enum{                   /**< driver test state chine */
+
+	SET_GPIO_DIR,
+	GPIO_WRITE,
+	GPIO_READ,
+	GPIO_TOGGLE,
+	GPIO_EXT_INT,
+	PORT_WRITE,
+
+}driver_example_t;
+
+typedef struct test_s{
+	driver_example_t state;
+}test_t;
+
+test_t test;
+
+uint8_t int_flag;
+int btn_press_status;
+
+mcp23008_irq_callback_t mcp23008_irq_cb = mcp23008_basic_irq_handler;		/**< define a callback function for external interrupt */
 
 int main(void)
 {
@@ -16,7 +37,7 @@ int main(void)
 	
 	 gpio_set_pin_level(mcp23008_reset_pin, true);  /**< make the reset pin on the slave device is constantly high during communication */
 	
-	 mcp23008_basic_initialize(MCP23008_I2C_ADDRESS_PIN_A110);
+	 mcp23008_basic_initialize(MCP23008_I2C_ADDRESS_PIN_A110);				/**< initialize chip and set i2c pin level (A2, A1, A0) */
 	 mcp23008_info(&mcp23008_handle);
 
 	 mcp23008_interface_debug_print("Chip name :\t%s\n\r", mcp23008_handle.info.chip_name);
@@ -29,43 +50,92 @@ int main(void)
 	 mcp23008_interface_debug_print("Temperature Max: \t%.1fC\n\r",  mcp23008_handle.info.temperature_max);
 	 mcp23008_interface_debug_print("Temperature Min: \t%.1fC\n\r",  mcp23008_handle.info.temperature_min);
 	 mcp23008_interface_debug_print("Driver version: \tV%.1f.%.2d\n\r", ( mcp23008_handle.info.driver_version / 1000), (uint8_t)( mcp23008_handle.info.driver_version - (uint8_t)( mcp23008_handle.info.driver_version / 100)*100));
-
-	 //mcp23008_basic_gpio_set_direction(MCP23008_GPIO_PIN_7, MCP23008_OUTPUT);
-	 mcp23008_basic_gpio_set_direction(MCP23008_GPIO_PIN_6, MCP23008_OUTPUT);
-	 //mcp23008_basic_gpio_set_direction(MCP23008_GPIO_PIN_5, MCP23008_OUTPUT);
 	 
-	 /**< enable pin mode GPIO0 and 1 as input pull-up*/
-	 mcp23008_basic_gpio_set_direction(MCP23008_GPIO_PIN_0, MCP23008_INPUT_PULLUP);
-	 mcp23008_basic_gpio_set_direction(MCP23008_GPIO_PIN_1, MCP23008_INPUT_PULLUP);
-	 
-	 /**< enable interrupt on GPIO 0 and 1 on falling edge*/
-	 mcp23008_basic_INT_enable(MCP23008_GPIO_PIN_0, MCP23008_INT_FALLING_EDGE);
-	 mcp23008_basic_INT_enable(MCP23008_GPIO_PIN_1, MCP23008_INT_FALLING_EDGE);
-	 
-	 ext_irq_register(PIN_PA24, mcp23008_basic_irq_handler);
-	 //mcp23008_basic_port_set_direction(MCP23008_OUTPUT);
+	 //ext_irq_register(PIN_PA24, mcp23008_irq_cb);
 	  
-  
 	/* Replace with your application code */
 	while (1) {
-		mcp23008_interface_delay_ms(1);
-		mcp23008_basic_clr_INT_flag();
+		
+		switch((int)test.state)
+		{
+			
+			case SET_GPIO_DIR:
+			{
+				/**< set GPIO0 and 5, 6 and 7 as output */
+				mcp23008_basic_gpio_set_direction(MCP23008_GPIO_PIN_7, MCP23008_OUTPUT);
+				mcp23008_basic_gpio_set_direction(MCP23008_GPIO_PIN_6, MCP23008_OUTPUT);
+				mcp23008_basic_gpio_set_direction(MCP23008_GPIO_PIN_5, MCP23008_OUTPUT);
+				
+				/**< set GPIO0 and 0 and 1 as input */
+				mcp23008_basic_gpio_set_direction(MCP23008_GPIO_PIN_0, MCP23008_INPUT);
+				mcp23008_basic_gpio_set_direction(MCP23008_GPIO_PIN_1, MCP23008_INPUT_PULLUP);
+					
+				break;	
+			}
 
-	 //gpio_toggle_pin_level(user_led_blue);
-	 //mcp23008_basic_gpio_toggle(MCP23008_GPIO_PIN_7);
-	 //mcp23008_basic_gpio_toggle(MCP23008_GPIO_PIN_6);
-	 //mcp23008_basic_gpio_toggle(MCP23008_GPIO_PIN_5);
-	 //mcp23008_basic_pin_write_all(LOW);
-	 //mcp23008_interface_delay_ms(1000);
-	 //mcp23008_basic_pin_write_all(HIGH);
-	 //mcp23008_interface_delay_ms(300);
-	 //mcp23008_basic_gpio_write(MCP23008_GPIO_PIN_7, MCP23008_GPIO_LOW);
-	 //mcp23008_interface_delay_ms(300);
-	 	 //if(!mcp23008_basic_gpio_read(MCP23008_GPIO_PIN_1) ||!mcp23008_basic_gpio_read(MCP23008_GPIO_PIN_0)){
-		 	 //mcp23008_interface_delay_ms(1);
-		 	 //if(!mcp23008_basic_gpio_read(MCP23008_GPIO_PIN_1) ||!mcp23008_basic_gpio_read(MCP23008_GPIO_PIN_0)  )
-		 	 //mcp23008_basic_gpio_toggle(MCP23008_GPIO_PIN_5);
-	 	 //}
+			case GPIO_WRITE:
+			{
+				/**< Write gpio logic level */
+				mcp23008_basic_gpio_write(MCP23008_GPIO_PIN_7, MCP23008_GPIO_HIGH);
+				mcp23008_basic_gpio_write(MCP23008_GPIO_PIN_6, MCP23008_GPIO_LOW);
+				
+				break;
+			}
+			
+			case GPIO_READ:
+			{
+				/**< read gpio pin !!CONCIDER DEBOUNCING */      
+				if(mcp23008_basic_gpio_read(MCP23008_GPIO_PIN_1))
+				{
+					mcp23008_basic_gpio_write(MCP23008_GPIO_PIN_5, MCP23008_GPIO_HIGH);	
+				}else{
+				  	mcp23008_basic_gpio_write(MCP23008_GPIO_PIN_5, MCP23008_GPIO_LOW);	
+				}	
+				
+				btn_press_status = mcp23008_basic_gpio_read(MCP23008_GPIO_PIN_0);
+				if(btn_press_status == MCP23008_GPIO_LOW){
+					mcp23008_basic_gpio_write(MCP23008_GPIO_PIN_6, MCP23008_GPIO_HIGH);
+				}else{
+					mcp23008_basic_gpio_write(MCP23008_GPIO_PIN_6, MCP23008_GPIO_LOW);
+				}
+				break;
+			}
+						
+			case GPIO_TOGGLE:
+			{
+				/**< gpio toggle pin */
+				mcp23008_basic_gpio_toggle(MCP23008_GPIO_PIN_5);
+				mcp23008_interface_delay_ms(500);						
+				break;
+			}
+									
+			case GPIO_EXT_INT:
+			{
+				/**< enable interrupt on GPIO 0 as falling edge, disable interrupt on gpio 1*/
+				mcp23008_basic_interrupt_enable(MCP23008_GPIO_PIN_0, MCP23008_interrupt_FALLING_EDGE);
+				mcp23008_basic_interrupt_disable(MCP23008_GPIO_PIN_1);	
+				
+				/**< read interrupt flag status*/
+				mcp23008_basic_get_interrupt_flag(MCP23008_GPIO_PIN_0, &int_flag);
+				if(int_flag){
+					mcp23008_basic_clr_interrupt_flag();
+				}			
+				
+				//mcp23008_basic_gpio_irq_callBack(mcp23008_irq_cb);				/**< interrupt callback function (to be called in the external interrupt callback function) */			
+				break;
+			}
+												
+			case PORT_WRITE:
+			{
+				mcp23008_basic_pin_write_all(MCP23008_GPIO_HIGH);
+				mcp23008_interface_delay_ms(500);
+				mcp23008_basic_pin_write_all(MCP23008_GPIO_LOW);
+				mcp23008_interface_delay_ms(500);												
+				break;
+			}
+			
+		}
+		
 	}
 }
 

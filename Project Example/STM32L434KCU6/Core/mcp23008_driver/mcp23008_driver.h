@@ -99,6 +99,11 @@ static uint8_t pinMask[MCP23008_MAX_NUM_GPIO_PIN] = {MCP23008_GP0_MASK,
                                                     MCP23008_GP7_MASK};
 
 /**
+* @brief mcp794xx callback data definition
+*/
+typedef uint8_t(*mcp23008_irq_callback_t)(void);
+
+/**
  * @brief mcp23008 i2c address enumeration
  */
 typedef enum {
@@ -110,7 +115,7 @@ typedef enum {
     MCP23008_I2C_ADDRESS_PIN_A100 = 0x04, /**<  A2A1A0 100 */
     MCP23008_I2C_ADDRESS_PIN_A101 = 0x05, /**<  A2A1A0 101 */
     MCP23008_I2C_ADDRESS_PIN_A110 = 0x06, /**<  A2A1A0 110 */
-    MCP23008_I2C_ADDRESS_PIN_A111 = 0x07,  /**<  A2A1A0 111 */
+    MCP23008_I2C_ADDRESS_PIN_A111 = 0x07, /**<  A2A1A0 111 */
 } mcp23008_address_pin_t;
 
 /**
@@ -156,49 +161,49 @@ typedef enum {
  * @brief mcp23008 interrupt flag enumeration
  */
 typedef enum {
-    MCP23008_INT_CLEAR = 0x00, /**< Interrupt flag cleared */
-    MCP23008_INT_SET = 0x01 /**< Interrupt flag set */
-} mcp23008_int_flag_t;
+    MCP23008_interrupt_CLEAR = 0x00, /**< Interrupt flag cleared */
+    MCP23008_interrupt_SET = 0x01 /**< Interrupt flag set */
+} mcp23008_interrupt_flag_t;
 
 /**
  * @brief mcp23008 interrupt compare value enumeration
  */
 typedef enum {
-    MCP23008_INT_COMP_TO_PREVIOUS_VALUE = 0x00, /**< Interrupt on change compares to value set on default register */
-    MCP23008_INT_COMP_TO_DEFAULT_VALUE = 0x01 /**< Interrupt on change compares to value previous port value */
-} mcp23008_int_compare_value_t;
+    MCP23008_interrupt_COMP_TO_PREVIOUS_VALUE = 0x00, /**< Interrupt on change compares to value set on default register */
+    MCP23008_interrupt_COMP_TO_DEFAULT_VALUE = 0x01 /**< Interrupt on change compares to value previous port value */
+} mcp23008_interrupt_compare_value_t;
 
 /**
  * @brief mcp23008 interrupt default value enumeration
  */
 typedef enum {
-    MCP23008_INT_RISING_EDGE  = 0x00, /**< Interrupt on change default value to compare 0 */
-    MCP23008_INT_FALLING_EDGE = 0x01  /**< Interrupt on change default value to compare 1 */
-} mcp23008_int_default_value_t;
+    MCP23008_interrupt_RISING_EDGE  = 0x00, /**< Interrupt on change default value to compare 0 */
+    MCP23008_interrupt_FALLING_EDGE = 0x01  /**< Interrupt on change default value to compare 1 */
+} mcp23008_interrupt_default_value_t;
 
 /**
  * @brief mcp23008 interrupt open-drain enumeration
  */
 typedef enum {
-    MCP23008_INT_ACTIVE_DRIVER = 0x00, /**< Active driver output (INTPOL bit sets the polarity) */
-    MCP23008_INT_OPEN_DRAIN_OUTPUT = 0x01 /**< Open-drain output (overrides the INTPOL bit) */
-} mcp23008_int_open_drain_mode_t;
+    MCP23008_interrupt_ACTIVE_DRIVER = 0x00, /**< Active driver output (INTPOL bit sets the polarity) */
+    MCP23008_interrupt_OPEN_DRAIN_OUTPUT = 0x01 /**< Open-drain output (overrides the INTPOL bit) */
+} mcp23008_interrupt_open_drain_mode_t;
 
 /**
  * @brief mcp23008 interrupt polarity enumeration
  */
 typedef enum {
-    MCP23008_INT_ACTIVE_LOW = 0x00, /**< Interrupt active low */
-    MCP23008_INT_ACTIVE_HIGH = 0x01 /**< Interrupt active high */
-} mcp23008_int_polarity_t;
+    MCP23008_interrupt_ACTIVE_LOW = 0x00, /**< Interrupt active low */
+    MCP23008_interrupt_ACTIVE_HIGH = 0x01 /**< Interrupt active high */
+} mcp23008_interrupt_polarity_t;
 
 /**
  * @brief mcp23008 interrupt captured value enumeration
  */
 typedef enum {
-    MCP23008_INT_CAP_LOW = 0x00, /**< GPIO interrupt captured logic low */
-    MCP23008_INT_CAP_HIGH = 0x01 /**< GPIO interrupt captured logic high */
-} mcp23008_int_captured_state_t;
+    MCP23008_interrupt_CAP_LOW = 0x00, /**< GPIO interrupt captured logic low */
+    MCP23008_interrupt_CAP_HIGH = 0x01 /**< GPIO interrupt captured logic high */
+} mcp23008_interrupt_captured_state_t;
 
 /**
  * @brief mcp23008 logic level enumeration
@@ -564,7 +569,7 @@ uint8_t mcp23008_get_pin_interrupt(mcp23008_handle_t *const pHandle, mcp23008_gp
  *          - 1 failed to get interrupt flag status
  * @note    none
  */
-uint8_t mcp23008_get_interrupt_flag(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_flag_t *flag);
+uint8_t mcp23008_get_interrupt_flag(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_flag_t *flag);
 
 /**
  * @brief clear pin interrupt flag
@@ -576,7 +581,7 @@ uint8_t mcp23008_get_interrupt_flag(mcp23008_handle_t *const pHandle, mcp23008_g
  *          - 1 failed to get interrupt flag status
  * @note    none
  */
-uint8_t mcp23008_clear_interrupt_flag(mcp23008_handle_t *const pHandle/*, mcp23008_gpio_port_t pin, mcp23008_int_flag_t flag*/);
+uint8_t mcp23008_clear_interrupt_flag(mcp23008_handle_t *const pHandle/*, mcp23008_gpio_port_t pin, mcp23008_interrupt_flag_t flag*/);
 
 /**
  * @brief set interrupt output pin level when an interrupt occur
@@ -587,7 +592,7 @@ uint8_t mcp23008_clear_interrupt_flag(mcp23008_handle_t *const pHandle/*, mcp230
  *          - 1 failed to set interrupt logic output logic level
  * @note    none
  */
-uint8_t mcp23008_set_intrrupt_pin_output_level(mcp23008_handle_t *const pHandle, mcp23008_int_polarity_t logic_level);
+uint8_t mcp23008_set_intrrupt_pin_output_level(mcp23008_handle_t *const pHandle, mcp23008_interrupt_polarity_t logic_level);
 
 /**
  * @brief get interrupt output pin level assigned when an interrupt occur
@@ -598,7 +603,7 @@ uint8_t mcp23008_set_intrrupt_pin_output_level(mcp23008_handle_t *const pHandle,
  *          - 1 failed to get interrupt logic output logic level
  * @note    none
  */
-uint8_t mcp23008_get_interrupt_pin_output_level(mcp23008_handle_t *const pHandle, mcp23008_int_polarity_t *polarity);
+uint8_t mcp23008_get_interrupt_pin_output_level(mcp23008_handle_t *const pHandle, mcp23008_interrupt_polarity_t *polarity);
 
 /**
  * @brief set gpio pin polarity level when interrupt occur (
@@ -610,7 +615,7 @@ uint8_t mcp23008_get_interrupt_pin_output_level(mcp23008_handle_t *const pHandle
  *          - 1 failed set pin polarity level
  * @note    none
  */
-uint8_t mcp23008_set_pin_interrupt_caputure_level(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_captured_state_t logic_level);
+uint8_t mcp23008_set_pin_interrupt_caputure_level(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_captured_state_t logic_level);
 
 /**
  * @brief get gpio pin polarity level when interrupt occur
@@ -622,7 +627,7 @@ uint8_t mcp23008_set_pin_interrupt_caputure_level(mcp23008_handle_t *const pHand
  *          - 1 failed set pin polarity level
  * @note    none
  */
-uint8_t mcp23008_get_pin_interrupt_caputure_level(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_captured_state_t *logic_level);
+uint8_t mcp23008_get_pin_interrupt_caputure_level(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_captured_state_t *logic_level);
 
 /**
  * @brief set interrupt pin output mode (open drain or active mode)
@@ -633,7 +638,7 @@ uint8_t mcp23008_get_pin_interrupt_caputure_level(mcp23008_handle_t *const pHand
  *          - 1 failed set interrupt output mode
  * @note    none
  */
-uint8_t mcp23008_set_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle, mcp23008_int_open_drain_mode_t mode);
+uint8_t mcp23008_set_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle, mcp23008_interrupt_open_drain_mode_t mode);
 
 /**
  * @brief Get interrupt pin output mode (open drain or not)
@@ -644,7 +649,7 @@ uint8_t mcp23008_set_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle,
  *          - 1 failed get interrupt output mode
  * @note    none
  */
-uint8_t mcp23008_get_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle, mcp23008_int_open_drain_mode_t *mode);
+uint8_t mcp23008_get_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle, mcp23008_interrupt_open_drain_mode_t *mode);
 
 /**
  * @brief set the mode on how the associated pin value is compared for the interrupt-on-change
@@ -656,7 +661,7 @@ uint8_t mcp23008_get_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle,
  *          - 1 failed set interrupt compare mode
  * @note    none
  */
-uint8_t mcp23008_set_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_compare_value_t mode);
+uint8_t mcp23008_set_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_compare_value_t mode);
 
 /**
  * @brief get the mode on how the associated pin value is compared for the interrupt-on-change
@@ -668,7 +673,7 @@ uint8_t mcp23008_set_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, m
  *          - 1 failed set interrupt compare mode
  * @note    none
  */
-uint8_t mcp23008_get_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_compare_value_t *mode);
+uint8_t mcp23008_get_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_compare_value_t *mode);
 
 /**
  * @brief set the compare value of pins configured as interrupt-on-change
@@ -680,7 +685,7 @@ uint8_t mcp23008_get_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, m
  *          - 1 failed to set interrupt default value
  * @note    none
  */
-uint8_t mcp23008_set_default_compare_value(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_default_value_t value);
+uint8_t mcp23008_set_default_compare_value(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_default_value_t value);
 
 /**
  * @brief get the compare value for pins configured for interrupt-on-change
@@ -692,7 +697,7 @@ uint8_t mcp23008_set_default_compare_value(mcp23008_handle_t *const pHandle, mcp
  *          - 1 failed to get interrupt default value
  * @note    none
  */
-uint8_t mcp23008_get_default_compare_value(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_default_value_t *value);
+uint8_t mcp23008_get_default_compare_value(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_default_value_t *value);
 
 /**
  * @brief set Slew Rate Control Bit for SDA Output

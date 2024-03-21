@@ -39,7 +39,7 @@
 #define MIN_CURRENT               120.0f                 /**< chip min current (mA)*/
 #define TEMPERATURE_MIN           -40.0f                 /**< chip min operating temperature (�C) */
 #define TEMPERATURE_MAX           125.0f                 /**< chip max operating temperature (�C) */
-#define DRIVER_VERSION            1304                   /**< driver version */
+#define DRIVER_VERSION            1000                   /**< driver version */
 
 /**
  * @brief i2c or spi write one byte

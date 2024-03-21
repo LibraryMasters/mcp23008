@@ -30,7 +30,7 @@
 /**
  * @brief chip information definition
  */
-#define CHIP_NAME                "MCP23008"             /**< chip name for i2c versioin */
+#define CHIP_NAME                "MCP23008"             /**< chip name for i2c version */
 #define INTERFACE                "I2C"                  /**< interface protocol */
 #define MANUFACTURER_NAME         "Microchip Technology" /**< manufacturer name */
 #define SUPPLY_VOLTAGE_MIN        0.3f                   /**< chip min supply voltage */
@@ -39,7 +39,7 @@
 #define MIN_CURRENT               120.0f                 /**< chip min current (mA)*/
 #define TEMPERATURE_MIN           -40.0f                 /**< chip min operating temperature (�C) */
 #define TEMPERATURE_MAX           125.0f                 /**< chip max operating temperature (�C) */
-#define DRIVER_VERSION            1302                   /**< driver version */
+#define DRIVER_VERSION            1000                   /**< driver version */
 
 /**
  * @brief i2c or spi write one byte
@@ -687,7 +687,7 @@ uint8_t mcp23008_get_pin_interrupt(mcp23008_handle_t *const pHandle, mcp23008_gp
  *          - 1 failed to get interrupt flag status
  * @note    none
  */
-uint8_t mcp23008_get_interrupt_flag(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_flag_t *flag) {
+uint8_t mcp23008_get_interrupt_flag(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_flag_t *flag) {
     uint8_t err;
     uint8_t status;
 
@@ -702,7 +702,7 @@ uint8_t mcp23008_get_interrupt_flag(mcp23008_handle_t *const pHandle, mcp23008_g
         return 1;
     }
 
-    *flag = (mcp23008_int_flag_t) ((status & pinMask[pin]) >> pin);
+    *flag = (mcp23008_interrupt_flag_t) ((status & pinMask[pin]) >> pin);
     return 0;
 }
 
@@ -716,7 +716,7 @@ uint8_t mcp23008_get_interrupt_flag(mcp23008_handle_t *const pHandle, mcp23008_g
  *          - 1 failed to get interrupt flag status
  * @note    none
  */
-uint8_t mcp23008_clear_interrupt_flag(mcp23008_handle_t *const pHandle/*, mcp23008_gpio_port_t pin, mcp23008_int_flag_t flag*/) {
+uint8_t mcp23008_clear_interrupt_flag(mcp23008_handle_t *const pHandle/*, mcp23008_gpio_port_t pin, mcp23008_interrupt_flag_t flag*/) {
     uint8_t err;
     uint8_t status;
 
@@ -751,7 +751,7 @@ uint8_t mcp23008_clear_interrupt_flag(mcp23008_handle_t *const pHandle/*, mcp230
  *          - 1 failed to set interrupt logic output logic level
  * @note    none
  */
-uint8_t mcp23008_set_intrrupt_pin_output_level(mcp23008_handle_t *const pHandle, mcp23008_int_polarity_t logic_level) {
+uint8_t mcp23008_set_intrrupt_pin_output_level(mcp23008_handle_t *const pHandle, mcp23008_interrupt_polarity_t logic_level) {
     uint8_t err;
     uint8_t status;
 
@@ -784,7 +784,7 @@ uint8_t mcp23008_set_intrrupt_pin_output_level(mcp23008_handle_t *const pHandle,
  *          - 1 failed to get interrupt logic output logic level
  * @note    none
  */
-uint8_t mcp23008_get_interrupt_pin_output_level(mcp23008_handle_t *const pHandle, mcp23008_int_polarity_t *polarity) {
+uint8_t mcp23008_get_interrupt_pin_output_level(mcp23008_handle_t *const pHandle, mcp23008_interrupt_polarity_t *polarity) {
     uint8_t err;
     uint8_t status;
 
@@ -798,7 +798,7 @@ uint8_t mcp23008_get_interrupt_pin_output_level(mcp23008_handle_t *const pHandle
         a_mcp23008_print_error_msg(pHandle,"read pin interrupt status");
         return 1;
     }
-    *polarity = (mcp23008_int_polarity_t) ((status & MCP23008_INTPOL_MASK) >> 1);
+    *polarity = (mcp23008_interrupt_polarity_t) ((status & MCP23008_INTPOL_MASK) >> 1);
     return 0;
 }
 
@@ -812,7 +812,7 @@ uint8_t mcp23008_get_interrupt_pin_output_level(mcp23008_handle_t *const pHandle
  *          - 1 failed set pin polarity level
  * @note    none
  */
-//uint8_t mcp23008_set_pin_interrupt_caputure_level(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_captured_state_t logic_level)
+//uint8_t mcp23008_set_pin_interrupt_caputure_level(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_captured_state_t logic_level)
 //{
 //    uint8_t err;
 //    uint8_t status;
@@ -849,7 +849,7 @@ uint8_t mcp23008_get_interrupt_pin_output_level(mcp23008_handle_t *const pHandle
  *          - 1 failed get pin polarity level
  * @note    none
  */
-uint8_t mcp23008_get_pin_interrupt_caputure_level(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_captured_state_t *logic_level) {
+uint8_t mcp23008_get_pin_interrupt_caputure_level(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_captured_state_t *logic_level) {
     uint8_t err;
     uint8_t status;
 
@@ -864,7 +864,7 @@ uint8_t mcp23008_get_pin_interrupt_caputure_level(mcp23008_handle_t *const pHand
         return 1;
     }
     //    status &= pinMask[pin];
-    *logic_level = (mcp23008_int_captured_state_t) ((status & pinMask[pin]) >> pin);
+    *logic_level = (mcp23008_interrupt_captured_state_t) ((status & pinMask[pin]) >> pin);
     return 0;
 }
 
@@ -877,7 +877,7 @@ uint8_t mcp23008_get_pin_interrupt_caputure_level(mcp23008_handle_t *const pHand
  *          - 1 failed set interrupt putput mode
  * @note    none
  */
-uint8_t mcp23008_set_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle, mcp23008_int_open_drain_mode_t mode) {
+uint8_t mcp23008_set_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle, mcp23008_interrupt_open_drain_mode_t mode) {
     uint8_t err;
     uint8_t status;
 
@@ -910,7 +910,7 @@ uint8_t mcp23008_set_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle,
  *          - 1 failed get interrupt putput mode
  * @note    none
  */
-uint8_t mcp23008_get_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle, mcp23008_int_open_drain_mode_t *mode) {
+uint8_t mcp23008_get_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle, mcp23008_interrupt_open_drain_mode_t *mode) {
     uint8_t err;
     uint8_t status;
 
@@ -924,7 +924,7 @@ uint8_t mcp23008_get_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle,
         a_mcp23008_print_error_msg(pHandle,"read pin interrupt status");
         return 1;
     }
-    *mode = (mcp23008_int_open_drain_mode_t) ((status & MCP23008_ODR_MASK) >> 2);
+    *mode = (mcp23008_interrupt_open_drain_mode_t) ((status & MCP23008_ODR_MASK) >> 2);
     return 0;
 }
 
@@ -938,7 +938,7 @@ uint8_t mcp23008_get_interrupt_pin_output_mode(mcp23008_handle_t *const pHandle,
  *          - 1 failed set interrupt compare mode
  * @note    none
  */
-uint8_t mcp23008_set_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_compare_value_t mode) {
+uint8_t mcp23008_set_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_compare_value_t mode) {
     uint8_t err;
     uint8_t status;
 
@@ -972,7 +972,7 @@ uint8_t mcp23008_set_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, m
  *          - 1 failed get interrupt compare mode
  * @note    none
  */
-uint8_t mcp23008_get_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_compare_value_t *mode) {
+uint8_t mcp23008_get_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_compare_value_t *mode) {
     uint8_t err;
     uint8_t status;
 
@@ -987,7 +987,7 @@ uint8_t mcp23008_get_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, m
         return 1;
     }
     status &= pinMask[pin];
-    *mode = (mcp23008_int_compare_value_t) ((status & pinMask[pin]) >> pin);
+    *mode = (mcp23008_interrupt_compare_value_t) ((status & pinMask[pin]) >> pin);
     return 0;
 }
 
@@ -1001,7 +1001,7 @@ uint8_t mcp23008_get_ineterrupt_compare_mode(mcp23008_handle_t *const pHandle, m
  *          - 1 failed to set interrupt default value
  * @note    none
  */
-uint8_t mcp23008_set_default_compare_value(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_default_value_t value) {
+uint8_t mcp23008_set_default_compare_value(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_default_value_t value) {
     uint8_t err;
     uint8_t status;
 
@@ -1036,7 +1036,7 @@ uint8_t mcp23008_set_default_compare_value(mcp23008_handle_t *const pHandle, mcp
  *          - 1 failed to get interrupt default value
  * @note    none
  */
-uint8_t mcp23008_get_default_compare_value(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_int_default_value_t *value) {
+uint8_t mcp23008_get_default_compare_value(mcp23008_handle_t *const pHandle, mcp23008_gpio_port_t pin, mcp23008_interrupt_default_value_t *value) {
     uint8_t err;
     uint8_t status;
 
@@ -1051,7 +1051,7 @@ uint8_t mcp23008_get_default_compare_value(mcp23008_handle_t *const pHandle, mcp
         return 1;
     }
     status &= pinMask[pin];
-    *value = (mcp23008_int_default_value_t) ((status & pinMask[pin]) >> pin);
+    *value = (mcp23008_interrupt_default_value_t) ((status & pinMask[pin]) >> pin);
     return 0;
 }
 
