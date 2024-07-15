@@ -120,3 +120,31 @@
 	"mcp23008_driver_interface.h"
 	"mcp23008_driver_basic.h"
 
+1719499131 source:d:\library master\mcp23008\mcp23008 driver\mcp23008 driver\main.c
+	"mcp23008_driver_basic.h"
+
+1719499131 d:\library master\mcp23008\mcp23008 driver\mcp23008 driver\mcp23008_driver_basic.h
+	"mcp23008_driver_interface.h"
+
+1719499131 d:\library master\mcp23008\mcp23008 driver\mcp23008 driver\mcp23008_driver_interface.h
+	"mcp23008_driver.h"
+
+1719499131 d:\library master\mcp23008\mcp23008 driver\mcp23008 driver\mcp23008_driver.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdint.h>
+	<stdbool.h>
+	<stdlib.h>
+	<stdarg.h>
+
+1719499131 source:d:\library master\mcp23008\mcp23008 driver\mcp23008 driver\mcp23008_driver.c
+	"mcp23008_driver.h"
+
+1719499131 source:d:\library master\mcp23008\mcp23008 driver\mcp23008 driver\mcp23008_driver_basic.c
+	"mcp23008_driver_basic.h"
+
+1719499131 source:d:\library master\mcp23008\mcp23008 driver\mcp23008 driver\mcp23008_driver_interface.c
+	"mcp23008_driver_interface.h"
+	"mcp23008_driver_basic.h"
+

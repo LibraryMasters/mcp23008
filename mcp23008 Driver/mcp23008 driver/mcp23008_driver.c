@@ -1202,7 +1202,7 @@ uint8_t mcp23008_set_reg(mcp23008_handle_t *const pHandle, uint8_t reg, uint8_t 
     if (pHandle->inited != 1) /**< check initialize status */
         return 3; /**< return error */
 
-    if (a_mcp23008_i2c_write(pHandle->i2c_address, reg, buf, length) != 0) {
+    if (a_mcp23008_i2c_write(pHandle, reg, buf, length) != 0) {
         return 1;
     }
     return 0;
@@ -1228,7 +1228,7 @@ uint8_t mcp23008_get_reg(mcp23008_handle_t *const pHandle, uint8_t reg, uint8_t 
     if (pHandle->inited != 1) /**< check initialize status */
         return 3; /**< return error */
 
-    if (a_mcp23008_i2c_read(pHandle->i2c_address, reg, buf, length) != 0) {
+    if (a_mcp23008_i2c_read(pHandle, reg, buf, length) != 0) {
         return 1;
     }
     return 0;
